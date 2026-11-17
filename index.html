@@ -1,0 +1,320 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>맛집찾기 | 내 주변 맛집</title>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:Arial, "Noto Sans KR", sans-serif;
+  background:#f8f8f8;
+  color:#222;
+}
+header {
+  background:white;
+  padding:20px 8%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 2px 10px #ddd;
+}
+.logo {font-size:25px;font-weight:bold;color:#ff6347;}
+nav a {
+  text-decoration:none;color:#333;
+  margin-left:25px;font-size:14px;
+}
+.hero {
+  background:linear-gradient(90deg,#2229,#2223),
+  url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600')
+  center/cover;
+  padding:90px 20px;
+  text-align:center;color:white;
+}
+.hero h1 {font-size:38px;margin-bottom:15px;}
+.hero p {margin-bottom:25px;}
+.search {
+  max-width:550px;margin:auto;
+  display:flex;background:white;
+  padding:6px;border-radius:10px;
+}
+.search input {
+  flex:1;border:none;padding:13px;
+  outline:none;font-size:15px;
+  min-width:0;
+}
+.search button {
+  background:#ff6347;color:white;
+  border:0;padding:12px 20px;
+  border-radius:7px;cursor:pointer;
+}
+.container {
+  max-width:1150px;margin:45px auto;padding:0 20px;
+}
+.location {
+  background:#fff3ef;padding:18px;
+  border-radius:10px;margin-bottom:30px;
+  display:flex;justify-content:space-between;
+  align-items:center;gap:12px;
+}
+.location button {
+  background:#ff6347;color:white;border:0;
+  padding:10px 15px;border-radius:7px;cursor:pointer;
+}
+.categories {
+  display:flex;gap:10px;flex-wrap:wrap;
+  margin:20px 0 30px;
+}
+.categories button {
+  border:1px solid #ddd;background:white;
+  padding:10px 20px;border-radius:30px;
+  cursor:pointer;
+}
+.categories button.active {
+  background:#ff6347;color:white;border-color:#ff6347;
+}
+.section-title {font-size:25px;margin-bottom:20px;}
+.grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:22px;
+}
+.card {
+  background:white;border-radius:13px;
+  overflow:hidden;box-shadow:0 3px 15px #0000000b;
+  transition:.2s;
+}
+.card:hover {transform:translateY(-5px);}
+.card img {
+  width:100%;height:210px;object-fit:cover;
+}
+.card-content {padding:18px;}
+.card h3 {font-size:19px;margin-bottom:10px;}
+.info {font-size:13px;color:#777;margin:7px 0;}
+.rating {color:#ff9d00;font-weight:bold;}
+.tag {
+  display:inline-block;background:#fff0ec;
+  color:#ff6347;padding:5px 10px;
+  border-radius:5px;font-size:12px;
+}
+.favorite {
+  float:right;border:0;background:none;
+  font-size:22px;cursor:pointer;
+}
+footer {
+  background:#222;color:#aaa;
+  text-align:center;padding:35px;margin-top:70px;
+  font-size:13px;
+}
+@media(max-width:800px) {
+  .grid {grid-template-columns:repeat(2,1fr);}
+  header {padding:18px 5%;}
+  nav a {margin-left:10px;}
+}
+@media(max-width:550px) {
+  .grid {grid-template-columns:1fr;}
+  .hero h1 {font-size:27px;}
+  nav {display:none;}
+  .location {align-items:flex-start;flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🍴 맛집찾기</div>
+  <nav>
+    <a href="#">홈</a>
+    <a href="#restaurants">맛집 둘러보기</a>
+    <a href="#about">소개</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <h1>오늘 뭐 먹지?</h1>
+  <p>내 주변 숨은 맛집을 찾아보세요!</p>
+  <div class="search">
+    <input id="searchInput"
+      placeholder="맛집 이름 또는 음식 검색하기">
+    <button onclick="searchFood()">검색</button>
+  </div>
+</section>
+
+<main class="container">
+
+  <div class="location">
+    <div>
+      <strong>📍 내 주변 맛집 찾기</strong>
+      <p id="address" class="info">
+        위치를 확인하고 주변 맛집을 찾아보세요.
+      </p>
+    </div>
+    <button onclick="getLocation()">내 위치 확인</button>
+  </div>
+
+  <h2 class="section-title">🍽️ 음식 카테고리</h2>
+  <div class="categories">
+    <button class="active" onclick="filterFood('전체',this)">전체</button>
+    <button onclick="filterFood('한식',this)">한식</button>
+    <button onclick="filterFood('중식',this)">중식</button>
+    <button onclick="filterFood('일식',this)">일식</button>
+    <button onclick="filterFood('양식',this)">양식</button>
+    <button onclick="filterFood('카페',this)">카페</button>
+  </div>
+
+  <section id="restaurants">
+    <h2 class="section-title">🔥 인기 맛집</h2>
+    <div class="grid" id="restaurantList"></div>
+  </section>
+
+</main>
+
+<footer id="about">
+  <h3>🍴 맛집찾기</h3>
+  <p style="margin-top:12px">
+    내 주변의 맛있는 음식점 정보를 소개합니다.
+  </p>
+  <p style="margin-top:10px">
+    Copyright © 2026 맛집찾기. All Rights Reserved.
+  </p>
+</footer>
+
+<script>
+const restaurants = [
+  {
+    name:"서울 전통 한정식",
+    category:"한식",
+    rating:"4.8",
+    price:"15,000원~",
+    address:"서울 종로구",
+    image:"https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=600"
+  },
+  {
+    name:"정통 일본 라멘",
+    category:"일식",
+    rating:"4.7",
+    price:"10,000원~",
+    address:"서울 마포구",
+    image:"https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600"
+  },
+  {
+    name:"수제 파스타 전문점",
+    category:"양식",
+    rating:"4.9",
+    price:"16,000원~",
+    address:"서울 강남구",
+    image:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=600"
+  },
+  {
+    name:"중화요리 맛집",
+    category:"중식",
+    rating:"4.6",
+    price:"9,000원~",
+    address:"서울 영등포구",
+    image:"https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600"
+  },
+  {
+    name:"감성 디저트 카페",
+    category:"카페",
+    rating:"4.8",
+    price:"6,000원~",
+    address:"서울 성동구",
+    image:"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600"
+  },
+  {
+    name:"숯불구이 전문점",
+    category:"한식",
+    rating:"4.9",
+    price:"18,000원~",
+    address:"서울 송파구",
+    image:"https://images.unsplash.com/photo-1544025162-d76694265947?w=600"
+  }
+];
+
+let currentCategory = "전체";
+let keyword = "";
+let favorites = [];
+
+function render() {
+  const list = document.getElementById("restaurantList");
+
+  const filtered = restaurants.filter(r =>
+    (currentCategory === "전체" ||
+     r.category === currentCategory) &&
+    (r.name.includes(keyword) ||
+     r.category.includes(keyword) ||
+     r.address.includes(keyword))
+  );
+
+  list.innerHTML = filtered.length ? filtered.map((r) => `
+    <div class="card">
+      <img src="${r.image}" alt="${r.name}">
+      <div class="card-content">
+        <button class="favorite"
+          onclick="toggleFavorite('${r.name}')">
+          ${favorites.includes(r.name) ? "❤️" : "♡"}
+        </button>
+        <span class="tag">${r.category}</span>
+        <h3>${r.name}</h3>
+        <p class="rating">⭐ ${r.rating}</p>
+        <p class="info">📍 ${r.address}</p>
+        <p class="info">💰 ${r.price}</p>
+      </div>
+    </div>
+  `).join("") : "<p>검색 결과가 없습니다.</p>";
+}
+
+function filterFood(category, btn) {
+  currentCategory = category;
+  document.querySelectorAll(".categories button")
+    .forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  render();
+}
+
+function searchFood() {
+  keyword = document.getElementById("searchInput").value.trim();
+  render();
+}
+
+document.getElementById("searchInput")
+  .addEventListener("keydown", e => {
+    if(e.key === "Enter") searchFood();
+  });
+
+function toggleFavorite(name) {
+  if(favorites.includes(name)) {
+    favorites = favorites.filter(x => x !== name);
+  } else {
+    favorites.push(name);
+  }
+  render();
+}
+
+function getLocation() {
+  if(!navigator.geolocation) {
+    alert("위치 서비스를 지원하지 않는 브라우저입니다.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      document.getElementById("address").innerText =
+        `현재 위치 좌표: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+
+      alert("현재 위치를 확인했습니다. 실제 주변 맛집 검색에는 지도 API 연동이 필요합니다.");
+    },
+    () => alert("위치 정보를 가져올 수 없습니다. 위치 권한을 확인해주세요.")
+  );
+}
+
+render();
+</script>
+
+</body>
+</html>
+
